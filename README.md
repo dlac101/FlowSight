@@ -2,7 +2,9 @@
 
 A real-time network flow visualization tool for Intellifi SmartOS routers. Displays active connections on an interactive world map with DPI classification, risk scoring, traceroute hop analysis, and threat blocking.
 
-![FlowSight Overview](screenshot1.png)
+![FlowSight Overview](screenshots/screenshot1.png)
+
+![FlowSight Trace](screenshots/screenshot2.png)
 
 ## Features
 

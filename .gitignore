@@ -12,3 +12,4 @@ desktop.ini
 
 # Allow specific images
 !screenshot*.png
+!screenshots/*.png
