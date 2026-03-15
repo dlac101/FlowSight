@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowSight - Network Flow Mapper</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <img src="adtran-logo-white.svg" alt="Adtran" class="brand-logo" />
+      <button class="hamburger" id="sidebarToggle">☰</button>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="#" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a href="#" class="nav-item"><span class="nav-icon">📡</span> Intellifi</a></li>
+      <li><a href="#" class="nav-item"><span class="nav-icon">🌐</span> Network</a></li>
+      <li><a href="#" class="nav-item"><span class="nav-icon">📶</span> WiFi</a></li>
+      <li><a href="#" class="nav-item"><span class="nav-icon">💻</span> Devices</a></li>
+      <li class="nav-group open">
+        <a href="#" class="nav-item active-group"><span class="nav-icon">📈</span> Traffic</a>
+        <ul class="nav-submenu">
+          <li><a href="#" class="nav-subitem">LAN Devices</a></li>
+          <li><a href="#" class="nav-subitem">Flows</a></li>
+          <li><a href="#" class="nav-subitem">Categories</a></li>
+          <li><a href="#" class="nav-subitem">Client Activity</a></li>
+          <li><a href="#" class="nav-subitem">Connection History</a></li>
+          <li><a href="#" class="nav-subitem active">FlowSight</a></li>
+        </ul>
+      </li>
+      <li><a href="#" class="nav-item"><span class="nav-icon">⚙️</span> Services</a></li>
+      <li><a href="#" class="nav-item"><span class="nav-icon">🔧</span> Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search" class="search-input" />
+      </div>
+      <div class="top-bar-actions">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+        <span class="top-icon">🔔</span>
+        <span class="top-icon">🧩</span>
+        <span class="top-icon">🌐</span>
+        <div class="user-avatar">
+          <span class="avatar-circle">A</span>
+          <span>Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">FlowSight</h1>
+        <p class="page-subtitle">Geographic network flow mapping and traceroute diagnostics</p>
+      </div>
+      <div class="page-badges">
+        <span class="badge badge-info" id="flowCountBadge">🔗 14 flows</span>
+        <span class="badge badge-success" id="tracedBadge">📍 6 traced</span>
+          <span class="badge badge-danger hidden" id="blockedBadge" onclick="toggleBlockedPanel()">🛡️ 0 blocked</span>
+        <div class="blocked-panel hidden" id="blockedPanel">
+          <div class="blocked-panel-header">
+            <h4>Blocked IPs</h4>
+            <button class="blocked-panel-close" onclick="toggleBlockedPanel()">✕</button>
+          </div>
+          <div class="blocked-panel-list" id="blockedPanelList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="view-controls">
+      <div class="view-toggle">
+        <button class="view-btn active" id="mapViewBtn" onclick="switchView('map')">
+          🗺️ Map View
+        </button>
+        <button class="view-btn" id="traceViewBtn" onclick="switchView('trace')">
+          📉 Traceroute View
+        </button>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">MIN RATE:</span>
+        <button class="filter-btn active" onclick="setMinRate(this, 1)">1 Kbps</button>
+        <button class="filter-btn" onclick="setMinRate(this, 100)">100 Kbps</button>
+        <button class="filter-btn" onclick="setMinRate(this, 1000)">1 Mbps</button>
+        <button class="filter-btn" onclick="setMinRate(this, 10000)">10 Mbps</button>
+      </div>
+    </div>
+
+    <!-- Map View -->
+    <div class="content-panel" id="mapView">
+      <div class="map-layout">
+        <!-- Flow List Sidebar -->
+        <div class="flow-sidebar">
+          <div class="flow-sidebar-header">
+            <h3>Active Flows</h3>
+            <span class="flow-count" id="flowListCount">14</span>
+          </div>
+          <div class="flow-list" id="flowList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <!-- Map Container -->
+        <div class="map-container">
+          <div id="map"></div>
+          <!-- Map Legend -->
+          <div class="map-legend">
+            <div class="legend-item"><span class="legend-line legend-web"></span> Web</div>
+            <div class="legend-item"><span class="legend-line legend-vpn"></span> VPN</div>
+            <div class="legend-item"><span class="legend-line legend-media"></span> Media</div>
+            <div class="legend-item"><span class="legend-line legend-other"></span> Other</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traceroute View -->
+    <div class="content-panel hidden" id="traceView">
+      <!-- Selected flow info bar -->
+      <div class="trace-header">
+        <div class="trace-target">
+          <span class="trace-label">TARGET</span>
+          <span class="trace-hostname" id="traceHostname">mia07s68-in-f7.1e100.net</span>
+          <span class="trace-ip">(142.251.152.119)</span>
+          <span class="protocol-badge udp">UDP</span>
+        </div>
+        <div class="trace-summary">
+          <div class="trace-stat">
+            <span class="stat-label">HOPS</span>
+            <span class="stat-value" id="traceHops">11</span>
+          </div>
+          <div class="trace-stat">
+            <span class="stat-label">AVG RTT</span>
+            <span class="stat-value stat-green" id="traceAvgRtt">18.4 ms</span>
+          </div>
+          <div class="trace-stat">
+            <span class="stat-label">PACKET LOSS</span>
+            <span class="stat-value stat-green" id="traceLoss">0%</span>
+          </div>
+          <div class="trace-stat">
+            <span class="stat-label">NETWORK</span>
+            <span class="stat-value" id="traceNetwork">Google LLC</span>
+          </div>
+          <div class="trace-stat">
+            <span class="stat-label">LOCATION</span>
+            <span class="stat-value" id="traceLocation">Miami, FL, US</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hop-by-hop visual traceroute (FlowSight style) -->
+      <div class="trace-hops-container" id="traceHopsContainer">
+        <!-- Populated by JS: each hop is a row with latency bar + info tile -->
+      </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>© 2026 <a href="#" class="footer-link">SMART/OS</a> powered by OpenWRT</span>
+      <div class="footer-right">
+        <span>WAN IP Address</span>
+        <span>Firmware Version</span>
+      </div>
+    </footer>
+    <!-- Block Confirmation Dialog -->
+    <div class="block-dialog-overlay hidden" id="blockDialogOverlay">
+      <div class="block-dialog">
+        <div class="block-dialog-header">
+          <span class="block-dialog-icon">🛡️</span>
+          <h3 class="block-dialog-title">Block Threat</h3>
+        </div>
+        <div class="block-dialog-body" id="blockDialogBody"></div>
+        <div class="block-dialog-actions" id="blockDialogActions"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
