@@ -6,15 +6,15 @@ let ROUTER_LOCATION = { lat: 28.0, lng: -82.0, city: 'Loading...', state: '', co
 
 async function geoipLookup(ip) {
   try {
-    const resp = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,org,as`);
+    const resp = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,city,lat,lon,isp,org,as`);
     const data = await resp.json();
     if (data.status === 'success') {
       return {
         lat: data.lat,
         lng: data.lon,
         city: data.city,
-        state: data.regionName,
-        country: data.country,
+        state: data.region,
+        country: data.countryCode,
         isp: data.isp,
         org: data.org,
         as: data.as
@@ -29,7 +29,7 @@ async function geoipLookup(ip) {
 // Batch lookup (ip-api.com supports batch POST, max 100)
 async function geoipBatchLookup(ips) {
   try {
-    const resp = await fetch('http://ip-api.com/batch?fields=status,query,country,regionName,city,lat,lon,isp,org,as', {
+    const resp = await fetch('http://ip-api.com/batch?fields=status,query,country,countryCode,region,city,lat,lon,isp,org,as', {
       method: 'POST',
       body: JSON.stringify(ips.map(ip => ({ query: ip })))
     });
@@ -41,8 +41,8 @@ async function geoipBatchLookup(ips) {
           lat: r.lat,
           lng: r.lon,
           city: r.city,
-          state: r.regionName,
-          country: r.country,
+          state: r.region,
+          country: r.countryCode,
           isp: r.isp,
           org: r.org,
           as: r.as
@@ -65,7 +65,7 @@ const mockFlows = [
     ja4_client: 'q13d0312h3_55b375c704af_eb2ee418070c', protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'QUIC'], os_hint: 'iOS',
     category: 'Web', iface: 'lan1', rx_bps: 1520000, tx_bps: 3930,
     network: 'Google LLC', location: { lat: 25.78, lng: -80.18, city: 'Miami', state: 'FL', country: 'US' },
-    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps' },
+    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps', qoe: { score: 87, snrScore: 100, phyRateScore: 82, retransScore: 78, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'AF41', label: 'AF41 - Video' },
     pathChanged: true
@@ -78,7 +78,7 @@ const mockFlows = [
     ja4_client: 'q13d0312h3_55b375c704af_3c5d4a27e31b', protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'QUIC'], os_hint: 'Windows',
     category: 'Web', iface: 'lan1', rx_bps: 30740, tx_bps: 8200,
     network: 'AWS CloudFront', location: { lat: 33.75, lng: -84.39, city: 'Atlanta', state: 'GA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -91,7 +91,7 @@ const mockFlows = [
     ja4_client: 'q13d0312h3_55b375c704af_3c5d4a27e31b', protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'QUIC'], os_hint: 'Windows',
     category: 'Web', iface: 'lan1', rx_bps: 17260, tx_bps: 9030,
     network: 'AWS CloudFront', location: { lat: 33.75, lng: -84.39, city: 'Atlanta', state: 'GA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -104,7 +104,7 @@ const mockFlows = [
     ja4_client: 't13d1517h2_8daaf6152771_b0da82dd1658', protocol_stack: ['Ethernet', 'IPv4', 'TCP', 'TLS'], os_hint: 'iOS',
     category: 'Web', iface: 'lan1', rx_bps: 8700, tx_bps: 3060,
     network: 'Cloudflare', location: { lat: 37.77, lng: -122.42, city: 'San Francisco', state: 'CA', country: 'US' },
-    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps' },
+    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps', qoe: { score: 87, snrScore: 100, phyRateScore: 82, retransScore: 78, stabilityScore: 100 } },
     risk: { risk_score: 100, risks: ['Known Protocol on Non-Standard Port', 'Unidirectional Traffic'] },
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -117,7 +117,7 @@ const mockFlows = [
     ja4_client: 't13d1516h2_8daaf6152771_e5627efa2ab1', protocol_stack: ['Ethernet', 'IPv4', 'TCP', 'TLS'], os_hint: 'Windows',
     category: 'Web', iface: 'lan1', rx_bps: 6370, tx_bps: 4920,
     network: 'AWS EC2', location: { lat: 39.04, lng: -77.49, city: 'Ashburn', state: 'VA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -130,7 +130,7 @@ const mockFlows = [
     ja4_client: null, protocol_stack: ['Ethernet', 'IPv4', 'UDP'], os_hint: 'Windows',
     category: 'VPN', iface: 'lan1', rx_bps: 1690, tx_bps: 1420,
     network: 'Tailscale Inc', location: { lat: 37.39, lng: -122.08, city: 'Mountain View', state: 'CA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'CS3', label: 'CS3 - Signaling' },
     pathChanged: false
@@ -143,7 +143,7 @@ const mockFlows = [
     ja4_client: 'q13d0312h3_55b375c704af_eb2ee418070c', protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'QUIC'], os_hint: 'iOS',
     category: 'Web', iface: 'lan1', rx_bps: 1670, tx_bps: 3090,
     network: 'Google LLC', location: { lat: 37.42, lng: -122.08, city: 'Mountain View', state: 'CA', country: 'US' },
-    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps' },
+    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps', qoe: { score: 87, snrScore: 100, phyRateScore: 82, retransScore: 78, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -156,7 +156,7 @@ const mockFlows = [
     ja4_client: 'q13d0312h3_55b375c704af_4c12a5720e19', protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'QUIC'], os_hint: 'iOS',
     category: 'VPN', iface: 'lan1', rx_bps: 1450, tx_bps: 1500,
     network: 'Akamai / Apple', location: { lat: 47.61, lng: -122.33, city: 'Seattle', state: 'WA', country: 'US' },
-    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps' },
+    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps', qoe: { score: 87, snrScore: 100, phyRateScore: 82, retransScore: 78, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'EF', label: 'EF - Voice' },
     pathChanged: false
@@ -169,7 +169,7 @@ const mockFlows = [
     ja4_client: 't13d1516h2_8daaf6152771_e5627efa2ab1', protocol_stack: ['Ethernet', 'IPv4', 'TCP', 'TLS'], os_hint: 'Windows',
     category: 'Web', iface: 'lan1', rx_bps: 29700, tx_bps: 5100,
     network: 'Cloudflare', location: { lat: 37.77, lng: -122.42, city: 'San Francisco', state: 'CA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -182,7 +182,7 @@ const mockFlows = [
     ja4_client: 'q13d0312h3_55b375c704af_eb2ee418070c', protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'QUIC'], os_hint: 'iOS',
     category: 'Media', iface: 'lan1', rx_bps: 47820000, tx_bps: 312500,
     network: 'Google LLC', location: { lat: 25.78, lng: -80.18, city: 'Miami', state: 'FL', country: 'US' },
-    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps' },
+    wifi: { rssi: -52, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 11, txPhyRate: '1201 Mbps', rxPhyRate: '1081 Mbps', qoe: { score: 87, snrScore: 100, phyRateScore: 82, retransScore: 78, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'AF41', label: 'AF41 - Video' },
     pathChanged: false
@@ -195,7 +195,7 @@ const mockFlows = [
     ja4_client: 't13d1516h2_8daaf6152771_e5627efa2ab1', protocol_stack: ['Ethernet', 'IPv4', 'TCP', 'TLS'], os_hint: 'Windows',
     category: 'Web', iface: 'lan1', rx_bps: 6790, tx_bps: 5180,
     network: 'AWS EC2', location: { lat: 39.04, lng: -77.49, city: 'Ashburn', state: 'VA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -208,7 +208,7 @@ const mockFlows = [
     ja4_client: 't13d1516h2_8daaf6152771_e5627efa2ab1', protocol_stack: ['Ethernet', 'IPv4', 'TCP', 'TLS'], os_hint: 'Windows',
     category: 'Web', iface: 'lan1', rx_bps: 5460, tx_bps: 12240,
     network: 'Akamai', location: { lat: 40.71, lng: -74.01, city: 'New York', state: 'NY', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -221,7 +221,7 @@ const mockFlows = [
     ja4_client: null, protocol_stack: ['Ethernet', 'IPv4', 'UDP', 'MDNS'], os_hint: 'Linux',
     category: 'Network', iface: 'lan3', rx_bps: 0, tx_bps: 2340,
     network: 'Local', location: null,
-    wifi: { rssi: -71, channel: 6, band: '2.4 GHz', standard: '802.11n', mcs: 7, txPhyRate: '72 Mbps', rxPhyRate: '65 Mbps' },
+    wifi: { rssi: -71, channel: 6, band: '2.4 GHz', standard: '802.11n', mcs: 7, txPhyRate: '72 Mbps', rxPhyRate: '65 Mbps', qoe: { score: 42, snrScore: 45, phyRateScore: 28, stabilityScore: 96 } },
     risk: null,
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
@@ -234,28 +234,27 @@ const mockFlows = [
     ja4_client: null, protocol_stack: ['Ethernet', 'IPv4', 'UDP'], os_hint: 'Windows',
     category: '-', iface: 'lan1', rx_bps: 5510, tx_bps: 5880,
     network: 'Comcast', location: { lat: 39.95, lng: -75.16, city: 'Philadelphia', state: 'PA', country: 'US' },
-    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps' },
+    wifi: { rssi: -61, channel: 149, band: '5 GHz', standard: '802.11ax', mcs: 9, txPhyRate: '866 Mbps', rxPhyRate: '780 Mbps', qoe: { score: 72, snrScore: 79, phyRateScore: 80, retransScore: 65, stabilityScore: 100 } },
     risk: { risk_score: 200, risks: ['Malware Host Contact', 'TLS Certificate Expired', 'Known Protocol on Non-Standard Port'] },
     dscp: { class: 'BE', label: 'Best Effort' },
     pathChanged: false
   }
 ];
 
-// Traceroute mock data for the first flow (Google - Miami)
+// Traceroute data for the first flow (Google)
 const mockTraceroute = {
   target: mockFlows[0],
   hops: [
-    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.5, minRtt: 0.3, maxRtt: 0.8, loss: 0, jitter: 0.2, asn: null, network: 'Local Network', location: 'Miami, FL, US' },
-    { hop: 2, hostname: '99-39-40-1.lightspeed.gnvlsc.sbcglobal.net', ip: '99.39.40.1', avgRtt: 8.2, minRtt: 7.1, maxRtt: 10.4, loss: 0, jitter: 1.5, asn: 'AS7018', network: 'AT&T', location: 'Gainesville, FL, US' },
-    { hop: 3, hostname: 'te-0-7-0-17-sur02.miami.fl.pompano.comcast.net', ip: '68.87.218.61', avgRtt: 9.8, minRtt: 8.5, maxRtt: 12.1, loss: 0, jitter: 1.8, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 4, hostname: 'be-1301-cr01.miami.fl.ibone.comcast.net', ip: '68.86.91.133', avgRtt: 10.2, minRtt: 9.0, maxRtt: 14.5, loss: 0, jitter: 2.1, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 5, hostname: 'be-301-ar01.northdade.fl.pompano.comcast.net', ip: '68.86.93.66', avgRtt: 11.5, minRtt: 10.1, maxRtt: 15.2, loss: 0, jitter: 2.8, asn: 'AS7922', pathChanged: true, previousIp: '68.86.166.17', previousHostname: 'be-302-ar02.westdade.fl.pompano.comcast.net', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 6, hostname: 'be-33491-cs04.miami.fl.ibone.comcast.net', ip: '96.110.43.65', avgRtt: 12.0, minRtt: 10.8, maxRtt: 16.3, loss: 0, jitter: 3.5, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 7, hostname: '* * *', ip: '—', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '—', location: '—' },
-    { hop: 8, hostname: '108.170.248.33', ip: '108.170.248.33', avgRtt: 14.2, minRtt: 12.8, maxRtt: 18.7, loss: 0, jitter: 2.2, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 9, hostname: '142.251.60.15', ip: '142.251.60.15', avgRtt: 15.6, minRtt: 13.2, maxRtt: 20.1, loss: 0, jitter: 3.1, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 10, hostname: '142.251.227.131', ip: '142.251.227.131', avgRtt: 17.1, minRtt: 14.5, maxRtt: 22.8, loss: 2, jitter: 4.5, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 11, hostname: 'mia07s68-in-f7.1e100.net', ip: '142.251.152.119', avgRtt: 18.4, minRtt: 15.2, maxRtt: 24.3, loss: 0, jitter: 3.8, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' }
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.7, minRtt: 0.5, maxRtt: 1.0, loss: 0, jitter: 0.5, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 0, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.3, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.7, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 12.0, minRtt: 11.0, maxRtt: 13.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.68', ip: '32.130.20.68', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 67, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.58', ip: '32.130.20.58', avgRtt: 11.3, minRtt: 11.0, maxRtt: 12.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.88.135', ip: '32.130.88.135', avgRtt: 16.0, minRtt: 15.0, maxRtt: 18.0, loss: 0, jitter: 3.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 9, hostname: 'gar5.cgcil.ip.att.net', ip: '12.123.6.57', avgRtt: 11.3, minRtt: 11.0, maxRtt: 12.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 10, hostname: '142.251.152.119', ip: '142.251.152.119', avgRtt: 12.0, minRtt: 12.0, maxRtt: 12.0, loss: 0, jitter: 0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' }
   ]
 };
 
@@ -264,33 +263,216 @@ const mockTracerouteHistorical = {
   timestamp: '2 hours ago',
   target: mockFlows[0],
   hops: [
-    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.6, minRtt: 0.4, maxRtt: 1.0, loss: 0, jitter: 0.3, asn: null, network: 'Local Network', location: 'Gainesville, FL, US' },
-    { hop: 2, hostname: '99-39-40-1.lightspeed.gnvlsc.sbcglobal.net', ip: '99.39.40.1', avgRtt: 9.5, minRtt: 8.2, maxRtt: 12.0, loss: 0, jitter: 1.8, asn: 'AS7018', network: 'AT&T', location: 'Gainesville, FL, US' },
-    { hop: 3, hostname: 'te-0-7-0-17-sur02.miami.fl.pompano.comcast.net', ip: '68.87.218.61', avgRtt: 11.2, minRtt: 9.8, maxRtt: 14.5, loss: 0, jitter: 2.1, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 4, hostname: 'be-1301-cr01.miami.fl.ibone.comcast.net', ip: '68.86.91.133', avgRtt: 12.0, minRtt: 10.5, maxRtt: 16.2, loss: 0, jitter: 2.4, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 5, hostname: 'be-302-ar02.westdade.fl.pompano.comcast.net', ip: '68.86.166.17', avgRtt: 13.8, minRtt: 11.5, maxRtt: 18.1, loss: 0, jitter: 3.2, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 6, hostname: 'be-33491-cs04.miami.fl.ibone.comcast.net', ip: '96.110.43.65', avgRtt: 14.5, minRtt: 12.2, maxRtt: 19.0, loss: 0, jitter: 3.8, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 7, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
-    { hop: 8, hostname: '108.170.248.33', ip: '108.170.248.33', avgRtt: 16.0, minRtt: 14.0, maxRtt: 20.5, loss: 0, jitter: 2.8, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 9, hostname: '142.251.60.15', ip: '142.251.60.15', avgRtt: 17.2, minRtt: 14.8, maxRtt: 22.0, loss: 0, jitter: 3.5, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 10, hostname: '142.251.227.131', ip: '142.251.227.131', avgRtt: 19.8, minRtt: 16.5, maxRtt: 25.4, loss: 3, jitter: 5.1, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 11, hostname: 'mia07s68-in-f7.1e100.net', ip: '142.251.152.119', avgRtt: 20.1, minRtt: 17.0, maxRtt: 26.8, loss: 0, jitter: 4.2, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' }
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 1.0, minRtt: 0.7, maxRtt: 1.5, loss: 0, jitter: 0.8, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 2.0, minRtt: 1.5, maxRtt: 2.5, loss: 0, jitter: 1.0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 2.7, minRtt: 2.0, maxRtt: 3.5, loss: 0, jitter: 1.5, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 6.0, minRtt: 5.0, maxRtt: 7.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.26', ip: '32.130.90.26', avgRtt: 14.0, minRtt: 13.0, maxRtt: 15.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.68', ip: '32.130.20.68', avgRtt: 13.0, minRtt: 12.0, maxRtt: 14.0, loss: 67, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.58', ip: '32.130.20.58', avgRtt: 13.3, minRtt: 12.0, maxRtt: 14.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.88.135', ip: '32.130.88.135', avgRtt: 18.0, minRtt: 16.0, maxRtt: 20.0, loss: 3, jitter: 4.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 9, hostname: 'gar5.cgcil.ip.att.net', ip: '12.123.6.57', avgRtt: 13.3, minRtt: 12.0, maxRtt: 14.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 10, hostname: '142.251.152.119', ip: '142.251.152.119', avgRtt: 14.0, minRtt: 13.0, maxRtt: 15.0, loss: 0, jitter: 2.0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' }
   ]
 };
 
-// Alt traceroute for YouTube flow (Feature 3 - multi-trace)
-const mockTracerouteAlt = {
-  target: mockFlows[9],
-  hops: [
-    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.4, minRtt: 0.2, maxRtt: 0.7, loss: 0, jitter: 0.2, asn: null, network: 'Local Network', location: 'Gainesville, FL, US' },
-    { hop: 2, hostname: '99-39-40-1.lightspeed.gnvlsc.sbcglobal.net', ip: '99.39.40.1', avgRtt: 7.8, minRtt: 6.5, maxRtt: 9.8, loss: 0, jitter: 1.4, asn: 'AS7018', network: 'AT&T', location: 'Gainesville, FL, US' },
-    { hop: 3, hostname: 'te-0-7-0-17-sur02.miami.fl.pompano.comcast.net', ip: '68.87.218.61', avgRtt: 9.2, minRtt: 7.8, maxRtt: 11.5, loss: 0, jitter: 1.6, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 4, hostname: 'be-1301-cr01.miami.fl.ibone.comcast.net', ip: '68.86.91.133', avgRtt: 10.0, minRtt: 8.5, maxRtt: 13.2, loss: 0, jitter: 2.0, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
-    { hop: 5, hostname: 'be-33658-cs02.miami.fl.ibone.comcast.net', ip: '96.110.40.85', avgRtt: 11.8, minRtt: 10.0, maxRtt: 14.8, loss: 0, jitter: 2.5, asn: 'AS7922', network: 'Comcast', location: 'Miami, FL, US' },
+// Per-flow traceroute hop arrays keyed by flow ID
+const flowTraceroutes = {
+  // Flow 1: Google (142.251.152.119)
+  1: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.7, minRtt: 0.5, maxRtt: 1.0, loss: 0, jitter: 0.5, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 0, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.3, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.7, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 12.0, minRtt: 11.0, maxRtt: 13.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.68', ip: '32.130.20.68', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 67, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.58', ip: '32.130.20.58', avgRtt: 11.3, minRtt: 11.0, maxRtt: 12.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.88.135', ip: '32.130.88.135', avgRtt: 16.0, minRtt: 15.0, maxRtt: 18.0, loss: 0, jitter: 3.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 9, hostname: 'gar5.cgcil.ip.att.net', ip: '12.123.6.57', avgRtt: 11.3, minRtt: 11.0, maxRtt: 12.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 10, hostname: '142.251.152.119', ip: '142.251.152.119', avgRtt: 12.0, minRtt: 12.0, maxRtt: 12.0, loss: 0, jitter: 0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' }
+  ],
+  // Flow 2: CloudFront (3.171.171.45)
+  2: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.3, minRtt: 0.5, maxRtt: 1.0, loss: 0, jitter: 0.5, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 0, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.7, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.3, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
     { hop: 6, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
-    { hop: 7, hostname: '108.170.248.65', ip: '108.170.248.65', avgRtt: 12.5, minRtt: 10.8, maxRtt: 16.0, loss: 0, jitter: 2.0, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 8, hostname: '142.251.71.35', ip: '142.251.71.35', avgRtt: 13.8, minRtt: 11.5, maxRtt: 17.5, loss: 0, jitter: 2.6, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' },
-    { hop: 9, hostname: 'rr3--sn-hp57yn7y.googlevideo.com', ip: '172.217.14.206', avgRtt: 14.2, minRtt: 12.0, maxRtt: 18.8, loss: 0, jitter: 2.9, asn: 'AS15169', network: 'Google LLC', location: 'Miami, FL, US' }
+    { hop: 7, hostname: '32.130.89.189', ip: '32.130.89.189', avgRtt: 11.3, minRtt: 11.0, maxRtt: 12.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 9, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 10, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 11, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 12, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 13, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 14, hostname: '3.171.171.45', ip: '3.171.171.45', avgRtt: 20.3, minRtt: 20.0, maxRtt: 21.0, loss: 0, jitter: 1.0, asn: 'AS16509', network: 'Amazon CloudFront', location: 'Atlanta, GA, US' }
+  ],
+  // Flow 3: CloudFront (3.161.174.101)
+  3: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.5, minRtt: 0.5, maxRtt: 0.5, loss: 33, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 3.0, minRtt: 3.0, maxRtt: 3.0, loss: 33, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 2.0, minRtt: 2.0, maxRtt: 2.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.3, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 6, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 7, hostname: '32.130.89.189', ip: '32.130.89.189', avgRtt: 20.0, minRtt: 11.0, maxRtt: 30.0, loss: 0, jitter: 19.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 9, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 10, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 11, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 12, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 13, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 14, hostname: '3.161.174.101', ip: '3.161.174.101', avgRtt: 24.3, minRtt: 20.0, maxRtt: 33.0, loss: 0, jitter: 13.0, asn: 'AS16509', network: 'Amazon CloudFront', location: 'Atlanta, GA, US' }
+  ],
+  // Flow 4: Cloudflare/Brave (104.18.32.68)
+  4: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 2.0, minRtt: 2.0, maxRtt: 2.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.3, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 16.7, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.47', ip: '32.130.20.47', avgRtt: 16.3, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.48', ip: '32.130.20.48', avgRtt: 16.0, minRtt: 16.0, maxRtt: 16.0, loss: 33, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.17.17', ip: '32.130.17.17', avgRtt: 16.3, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 9, hostname: '108.162.235.91', ip: '108.162.235.91', avgRtt: 29.3, minRtt: 22.0, maxRtt: 36.0, loss: 0, jitter: 14.0, asn: 'AS13335', network: 'Cloudflare', location: 'Dallas, TX, US' },
+    { hop: 10, hostname: '104.18.32.68', ip: '104.18.32.68', avgRtt: 16.3, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS13335', network: 'Cloudflare', location: 'Dallas, TX, US' }
+  ],
+  // Flow 5: Brave sync via Telia (54.230.56.12) - incomplete, ICMP blocked after hop 12
+  5: [
+    { hop: 1, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 2.0, minRtt: 2.0, maxRtt: 2.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.0, minRtt: 4.0, maxRtt: 4.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 6, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 7, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 8, hostname: 'mia-b2-link.ip.twelve99.net', ip: '62.115.196.64', avgRtt: 16.0, minRtt: 12.0, maxRtt: 20.0, loss: 33, jitter: 8.0, asn: 'AS1299', network: 'Telia Carrier', location: 'Miami, FL, US' },
+    { hop: 9, hostname: 'rest-bb1-link.ip.twelve99.net', ip: '62.115.119.230', avgRtt: 36.7, minRtt: 36.0, maxRtt: 37.0, loss: 0, jitter: 1.0, asn: 'AS1299', network: 'Telia Carrier', location: 'Reston, VA, US' },
+    { hop: 10, hostname: 'nyk-bb5-link.ip.twelve99.net', ip: '62.115.139.34', avgRtt: 39.0, minRtt: 39.0, maxRtt: 39.0, loss: 0, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'New York, NY, US' },
+    { hop: 11, hostname: 'ldn-bb1-link.ip.twelve99.net', ip: '62.115.139.245', avgRtt: 108.0, minRtt: 108.0, maxRtt: 108.0, loss: 0, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'London, UK' },
+    { hop: 12, hostname: 'ldn-b3-link.ip.twelve99.net', ip: '62.115.140.73', avgRtt: 108.0, minRtt: 108.0, maxRtt: 108.0, loss: 0, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'London, UK' },
+    { hop: 13, hostname: '54.230.56.12', ip: '54.230.56.12', avgRtt: 110.0, minRtt: 109.0, maxRtt: 111.0, loss: 0, jitter: 2.0, asn: 'AS16509', network: 'Amazon CloudFront', location: 'London, UK' }
+  ],
+  // Flow 6: Tailscale via Lumen (206.83.1.210)
+  6: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.5, minRtt: 0.5, maxRtt: 0.5, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.3, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 5.0, minRtt: 5.0, maxRtt: 5.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 6, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 7, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 8, hostname: 'ae14.edge6.mia1.sp.lumen.tech', ip: '4.68.111.49', avgRtt: 12.7, minRtt: 12.0, maxRtt: 13.0, loss: 0, jitter: 1.0, asn: 'AS3356', network: 'Lumen Technologies', location: 'Miami, FL, US' },
+    { hop: 9, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 10, hostname: 'IMPULSE-INT.ear3.LosAngeles1.Level3.net', ip: '4.79.136.26', avgRtt: 63.7, minRtt: 63.0, maxRtt: 65.0, loss: 0, jitter: 2.0, asn: 'AS3356', network: 'Lumen Technologies', location: 'Los Angeles, CA, US' },
+    { hop: 11, hostname: 'te3-2-403.edge0.snbbcaxf.impulse.net', ip: '205.254.246.27', avgRtt: 67.0, minRtt: 67.0, maxRtt: 67.0, loss: 0, jitter: 0, asn: 'AS6079', network: 'Impulse Internet', location: 'San Bernardino, CA, US' },
+    { hop: 12, hostname: 'sb0-cf9a6622.dsl.impulse.net', ip: '207.154.102.34', avgRtt: 67.3, minRtt: 67.0, maxRtt: 68.0, loss: 0, jitter: 1.0, asn: 'AS6079', network: 'Impulse Internet', location: 'San Bernardino, CA, US' },
+    { hop: 13, hostname: 'net-cf9a4c81.iis.impulse.net', ip: '207.154.76.129', avgRtt: 67.7, minRtt: 67.0, maxRtt: 68.0, loss: 0, jitter: 1.0, asn: 'AS6079', network: 'Impulse Internet', location: 'Ventura, CA, US' },
+    { hop: 14, hostname: '206.83.1.210', ip: '206.83.1.210', avgRtt: 67.7, minRtt: 67.0, maxRtt: 68.0, loss: 0, jitter: 1.0, asn: 'AS6079', network: 'Impulse Internet', location: 'Ventura, CA, US' }
+  ],
+  // Flow 7: Google NTP (216.239.34.223)
+  7: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.5, minRtt: 0.5, maxRtt: 0.5, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 33, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.7, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.3, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.68', ip: '32.130.20.68', avgRtt: 10.5, minRtt: 10.0, maxRtt: 11.0, loss: 33, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.58', ip: '32.130.20.58', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.88.135', ip: '32.130.88.135', avgRtt: 18.0, minRtt: 16.0, maxRtt: 20.0, loss: 0, jitter: 4.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 9, hostname: 'gar5.cgcil.ip.att.net', ip: '12.123.6.57', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 10, hostname: '12.255.10.134', ip: '12.255.10.134', avgRtt: 12.0, minRtt: 12.0, maxRtt: 12.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 11, hostname: '216.239.40.101', ip: '216.239.40.101', avgRtt: 13.0, minRtt: 13.0, maxRtt: 13.0, loss: 0, jitter: 0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' },
+    { hop: 12, hostname: '142.251.68.235', ip: '142.251.68.235', avgRtt: 12.3, minRtt: 12.0, maxRtt: 13.0, loss: 0, jitter: 1.0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' },
+    { hop: 13, hostname: '216.239.34.223', ip: '216.239.34.223', avgRtt: 13.0, minRtt: 13.0, maxRtt: 13.0, loss: 0, jitter: 0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' }
+  ],
+  // Flow 8: iCloud/Akamai (172.224.235.45) - incomplete, ICMP blocked after hop 10
+  8: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.3, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.3, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 16.0, minRtt: 16.0, maxRtt: 16.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.47', ip: '32.130.20.47', avgRtt: 16.0, minRtt: 16.0, maxRtt: 16.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 8, hostname: '32.130.17.13', ip: '32.130.17.13', avgRtt: 16.7, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 9, hostname: 'ae6.r21.atl01.mag.netarch.akamai.com', ip: '23.192.0.94', avgRtt: 16.0, minRtt: 16.0, maxRtt: 16.0, loss: 0, jitter: 0, asn: 'AS20940', network: 'Akamai Technologies', location: 'Atlanta, GA, US' },
+    { hop: 10, hostname: 'ae0.r22.atl01.icn.netarch.akamai.com', ip: '23.192.0.73', avgRtt: 16.3, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS20940', network: 'Akamai Technologies', location: 'Atlanta, GA, US' },
+    { hop: 11, hostname: '172.224.235.45', ip: '172.224.235.45', avgRtt: 17.0, minRtt: 16.5, maxRtt: 17.5, loss: 0, jitter: 1.0, asn: 'AS20940', network: 'Akamai Technologies', location: 'Atlanta, GA, US' }
+  ],
+  // Flow 9: Anthropic/Cloudflare (104.18.37.171)
+  9: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.3, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.0, minRtt: 4.0, maxRtt: 4.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 16.5, minRtt: 16.0, maxRtt: 17.0, loss: 33, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.47', ip: '32.130.20.47', avgRtt: 17.3, minRtt: 16.0, maxRtt: 20.0, loss: 0, jitter: 4.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.48', ip: '32.130.20.48', avgRtt: 16.0, minRtt: 16.0, maxRtt: 16.0, loss: 67, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.17.17', ip: '32.130.17.17', avgRtt: 16.3, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 9, hostname: '108.162.235.91', ip: '108.162.235.91', avgRtt: 30.7, minRtt: 24.0, maxRtt: 35.0, loss: 0, jitter: 11.0, asn: 'AS13335', network: 'Cloudflare', location: 'Dallas, TX, US' },
+    { hop: 10, hostname: '104.18.37.171', ip: '104.18.37.171', avgRtt: 17.0, minRtt: 17.0, maxRtt: 17.0, loss: 0, jitter: 0, asn: 'AS13335', network: 'Cloudflare', location: 'Dallas, TX, US' }
+  ],
+  // Flow 10: YouTube (172.217.14.206) - incomplete, ICMP blocked after hop 9
+  10: [
+    { hop: 1, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 2, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.7, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.68', ip: '32.130.20.68', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 67, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '32.130.20.58', ip: '32.130.20.58', avgRtt: 11.0, minRtt: 11.0, maxRtt: 11.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 8, hostname: '32.130.88.135', ip: '32.130.88.135', avgRtt: 14.0, minRtt: 12.0, maxRtt: 15.0, loss: 0, jitter: 3.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 9, hostname: 'gar5.cgcil.ip.att.net', ip: '12.123.6.57', avgRtt: 12.3, minRtt: 11.0, maxRtt: 14.0, loss: 0, jitter: 3.0, asn: 'AS7018', network: 'AT&T', location: 'Chicago, IL, US' },
+    { hop: 10, hostname: '172.217.14.206', ip: '172.217.14.206', avgRtt: 12.0, minRtt: 11.5, maxRtt: 12.5, loss: 0, jitter: 1.0, asn: 'AS15169', network: 'Google LLC', location: 'Chicago, IL, US' }
+  ],
+  // Flow 11: Segment via Telia (3.162.45.88)
+  11: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.5, minRtt: 0.5, maxRtt: 0.5, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 0.5, minRtt: 0.5, maxRtt: 0.5, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.3, minRtt: 1.0, maxRtt: 2.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.7, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 6, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 7, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 8, hostname: 'mia-b2-link.ip.twelve99.net', ip: '62.115.196.64', avgRtt: 12.0, minRtt: 12.0, maxRtt: 12.0, loss: 33, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'Miami, FL, US' },
+    { hop: 9, hostname: 'ash-bb2-link.ip.twelve99.net', ip: '62.115.120.176', avgRtt: 34.0, minRtt: 34.0, maxRtt: 34.0, loss: 33, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'Ashburn, VA, US' },
+    { hop: 10, hostname: 'prs-bb2-link.ip.twelve99.net', ip: '62.115.140.106', avgRtt: 122.0, minRtt: 122.0, maxRtt: 122.0, loss: 0, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'Paris, FR' },
+    { hop: 11, hostname: 'prs-b3-link.ip.twelve99.net', ip: '62.115.118.63', avgRtt: 116.0, minRtt: 116.0, maxRtt: 116.0, loss: 0, jitter: 0, asn: 'AS1299', network: 'Telia Carrier', location: 'Paris, FR' },
+    { hop: 12, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 13, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 14, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 15, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 16, hostname: '3.162.45.88', ip: '3.162.45.88', avgRtt: 115.0, minRtt: 115.0, maxRtt: 115.0, loss: 0, jitter: 0, asn: 'AS16509', network: 'Amazon CloudFront', location: 'Paris, FR' }
+  ],
+  // Flow 12: LastPass/Akamai (23.47.52.170)
+  12: [
+    { hop: 1, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 2, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 2.0, minRtt: 2.0, maxRtt: 2.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.3, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 29.0, minRtt: 29.0, maxRtt: 29.0, loss: 33, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.142', ip: '32.130.20.142', avgRtt: 29.0, minRtt: 29.0, maxRtt: 29.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 7, hostname: '32.130.20.14', ip: '32.130.20.14', avgRtt: 29.0, minRtt: 29.0, maxRtt: 29.0, loss: 67, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 8, hostname: '32.130.17.31', ip: '32.130.17.31', avgRtt: 29.0, minRtt: 29.0, maxRtt: 29.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 9, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 10, hostname: '192.168.234.137', ip: '192.168.234.137', avgRtt: 30.0, minRtt: 30.0, maxRtt: 30.0, loss: 0, jitter: 0, asn: 'AS20940', network: 'Akamai Technologies', location: 'Dallas, TX, US' },
+    { hop: 11, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 12, hostname: '23.47.52.170', ip: '23.47.52.170', avgRtt: 30.3, minRtt: 30.0, maxRtt: 31.0, loss: 0, jitter: 1.0, asn: 'AS20940', network: 'Akamai Technologies', location: 'Dallas, TX, US' }
+  ],
+  // Flow 14: Cloudflare (160.79.104.10)
+  14: [
+    { hop: 1, hostname: 'gateway.lan', ip: '192.168.0.1', avgRtt: 0.5, minRtt: 0.5, maxRtt: 0.5, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 2, hostname: '192.168.1.254', ip: '192.168.1.254', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 67, jitter: 0, asn: null, network: 'Local Network', location: 'Local Network' },
+    { hop: 3, hostname: '23.123.104.1', ip: '23.123.104.1', avgRtt: 1.0, minRtt: 1.0, maxRtt: 1.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 4, hostname: '99.168.25.112', ip: '99.168.25.112', avgRtt: 4.7, minRtt: 4.0, maxRtt: 5.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 5, hostname: '32.130.90.22', ip: '32.130.90.22', avgRtt: 16.0, minRtt: 16.0, maxRtt: 16.0, loss: 0, jitter: 0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 6, hostname: '32.130.20.47', ip: '32.130.20.47', avgRtt: 16.7, minRtt: 16.0, maxRtt: 18.0, loss: 0, jitter: 2.0, asn: 'AS7018', network: 'AT&T', location: 'Atlanta, GA, US' },
+    { hop: 7, hostname: '* * *', ip: '\u2014', avgRtt: null, minRtt: null, maxRtt: null, loss: 100, jitter: null, asn: null, network: '\u2014', location: '\u2014' },
+    { hop: 8, hostname: '32.130.17.17', ip: '32.130.17.17', avgRtt: 16.3, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS7018', network: 'AT&T', location: 'Dallas, TX, US' },
+    { hop: 9, hostname: '108.162.235.87', ip: '108.162.235.87', avgRtt: 16.7, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS13335', network: 'Cloudflare', location: 'Dallas, TX, US' },
+    { hop: 10, hostname: '160.79.104.10', ip: '160.79.104.10', avgRtt: 16.7, minRtt: 16.0, maxRtt: 17.0, loss: 0, jitter: 1.0, asn: 'AS13335', network: 'Cloudflare', location: 'Dallas, TX, US' }
   ]
 };
 
@@ -303,6 +485,7 @@ let arcs = [];
 let tileLayer;
 let routeLayers = {};      // Hop markers + segments per traced route (keyed by flow id)
 let activeTraceFlowIds = new Set(); // Which flows have their routes plotted
+let traceWaypoints = {};   // flowId -> [[lat,lng], ...] for bounds fitting
 let traceCache = {};       // Cache resolved traces by flow id
 
 const TRACE_COLORS = ['#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6'];
@@ -563,6 +746,7 @@ function selectFlow(id) {
     });
     routeLayers = {};
     activeTraceFlowIds.clear();
+    closeMapTracePanel();
   }
   selectedFlowId = id;
   renderFlowList();
@@ -575,6 +759,7 @@ function initMap() {
     center: [32, -95],
     zoom: 4,
     zoomControl: true,
+    preferCanvas: true,
     attributionControl: false
   });
 
@@ -722,15 +907,17 @@ function addFlowsToMap() {
       `);
     markers.push(marker);
 
-    // Arc from router to endpoint
-    const arcPoints = generateArc(
-      [ROUTER_LOCATION.lat, ROUTER_LOCATION.lng],
-      [location.lat, location.lng],
-      20
-    );
+    // Arc from router to endpoint — quadratic bezier control point
+    const arcStart = [ROUTER_LOCATION.lat, ROUTER_LOCATION.lng];
+    const arcEnd   = [location.lat, location.lng];
+    const arcDLat  = arcEnd[0] - arcStart[0];
+    const arcDLng  = arcEnd[1] - arcStart[1];
+    const arcD     = Math.sqrt(arcDLat * arcDLat + arcDLng * arcDLng);
+    const arcCtrl  = [(arcStart[0] + arcEnd[0]) / 2 + arcD * 0.3,
+                      (arcStart[1] + arcEnd[1]) / 2];
 
     // Invisible fat polyline for easy click target
-    const arcHitArea = L.polyline(arcPoints, {
+    const arcHitArea = L.polyline([arcStart, arcCtrl, arcEnd], {
       color: 'transparent',
       weight: 16,
       opacity: 0,
@@ -754,7 +941,8 @@ function addFlowsToMap() {
     const arcOpacity = hasBlocked ? 0.08 : hasActiveTraces ? 0.08 : (isSelected ? 1.0 : 0.55);
     const arcWeight = hasBlocked ? 1 : hasActiveTraces ? 1 : (isSelected ? 3.5 : 2);
 
-    const arc = L.polyline(arcPoints, {
+    // L.curve uses quadraticCurveTo on canvas — hardware-smooth at every zoom, bypasses RDP
+    const arc = L.curve(['M', arcStart, 'Q', arcCtrl, arcEnd], {
       color: hasBlocked ? '#6b7280' : color,
       weight: arcWeight,
       opacity: arcOpacity,
@@ -767,22 +955,21 @@ function addFlowsToMap() {
   });
 }
 
-function generateArc(start, end, numPoints) {
-  const points = [];
-  const latlngs = [];
-
-  for (let i = 0; i <= numPoints; i++) {
-    const t = i / numPoints;
-    const lat = start[0] + (end[0] - start[0]) * t;
-    const lng = start[1] + (end[1] - start[1]) * t;
-
-    // Add curvature
-    const d = Math.sqrt(Math.pow(end[0] - start[0], 2) + Math.pow(end[1] - start[1], 2));
-    const curve = Math.sin(Math.PI * t) * d * 0.15;
-    latlngs.push([lat + curve, lng]);
+// Build a smooth quadratic bezier spline path through an array of anchor points.
+// Uses the midpoint algorithm: each anchor is a bezier control point, and the
+// actual curve passes through the midpoints between consecutive anchors (C1 continuous).
+function buildBezierPath(anchors) {
+  if (anchors.length < 2) return ['M', anchors[0] || [0, 0]];
+  if (anchors.length === 2) return ['M', anchors[0], 'L', anchors[1]];
+  const path = ['M', anchors[0]];
+  for (let j = 1; j < anchors.length - 1; j++) {
+    const mid = [(anchors[j][0] + anchors[j + 1][0]) / 2,
+                 (anchors[j][1] + anchors[j + 1][1]) / 2];
+    path.push('Q', anchors[j], mid);
   }
-
-  return latlngs;
+  // Final segment ends at the last anchor exactly
+  path.push('Q', anchors[anchors.length - 2], anchors[anchors.length - 1]);
+  return path;
 }
 
 function highlightFlowOnMap(flowId) {
@@ -805,6 +992,7 @@ function clearRouteLayer() {
     layers.forEach(item => map.removeLayer(item));
   });
   routeLayers = {};
+  traceWaypoints = {};
 }
 
 async function traceRoute(flowId) {
@@ -816,9 +1004,11 @@ async function traceRoute(flowId) {
     if (routeLayers[flowId]) {
       routeLayers[flowId].forEach(item => map.removeLayer(item));
       delete routeLayers[flowId];
+      delete traceWaypoints[flowId];
     }
     addFlowsToMap();
     renderFlowList();
+    if (activeTraceFlowIds.size === 0) closeMapTracePanel();
     return;
   }
 
@@ -841,7 +1031,7 @@ async function traceRoute(flowId) {
     resolvedHops = traceCache[flowId];
   } else {
     // Use appropriate mock traceroute data
-    const hops = flowId === 10 ? mockTracerouteAlt.hops : mockTraceroute.hops;
+    const hops = flowTraceroutes[flowId] || mockTraceroute.hops;
 
     // Collect routable hop IPs for GeoIP batch lookup
     const hopIps = hops
@@ -863,114 +1053,187 @@ async function traceRoute(flowId) {
   renderFlowList();
 }
 
+// City coordinates for hop location lookup (from reverse DNS city codes)
+const CITY_COORDS = {
+  'Atlanta, GA, US': { lat: 33.749, lng: -84.388 },
+  'Chicago, IL, US': { lat: 41.878, lng: -87.630 },
+  'Dallas, TX, US': { lat: 32.777, lng: -96.797 },
+  'Miami, FL, US': { lat: 25.761, lng: -80.192 },
+  'Reston, VA, US': { lat: 38.969, lng: -77.341 },
+  'New York, NY, US': { lat: 40.713, lng: -74.006 },
+  'London, UK': { lat: 51.507, lng: -0.128 },
+  'Los Angeles, CA, US': { lat: 34.052, lng: -118.244 },
+  'San Bernardino, CA, US': { lat: 34.108, lng: -117.289 },
+  'Ventura, CA, US': { lat: 34.275, lng: -119.229 },
+  'Ashburn, VA, US': { lat: 39.044, lng: -77.487 },
+  'Paris, FR': { lat: 48.857, lng: 2.352 },
+  'Seattle, WA, US': { lat: 47.606, lng: -122.332 },
+  'Mountain View, CA, US': { lat: 37.386, lng: -122.084 },
+  'San Francisco, CA, US': { lat: 37.775, lng: -122.418 },
+  'Toronto, ON, CA': { lat: 43.653, lng: -79.383 },
+  'Philadelphia, PA, US': { lat: 39.953, lng: -75.164 },
+  'Gainesville, FL, US': { lat: 29.652, lng: -82.325 }
+};
+
+// Compute great-circle interpolated points between two lat/lng coords.
+// Segment count scales with angular distance so all arcs appear equally smooth.
+// Returns n evenly-spaced great-circle points between two lat/lng coords.
+// nOverride sets a fixed count; default 50 is sufficient for smooth animation paths.
+function geodesicPoints(lat1, lng1, lat2, lng2, nOverride) {
+  const toRad = d => d * Math.PI / 180;
+  const toDeg = r => r * 180 / Math.PI;
+  const φ1 = toRad(lat1), λ1 = toRad(lng1);
+  const φ2 = toRad(lat2), λ2 = toRad(lng2);
+  const dφ = φ2 - φ1, dλ = λ2 - λ1;
+  const a = Math.sin(dφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(dλ / 2) ** 2;
+  const d = 2 * Math.asin(Math.sqrt(a));
+  if (d < 0.001) return [[lat1, lng1], [lat2, lng2]];
+  const n = nOverride !== undefined ? nOverride : 50;
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const f = i / n;
+    const A = Math.sin((1 - f) * d) / Math.sin(d);
+    const B = Math.sin(f * d) / Math.sin(d);
+    const x = A * Math.cos(φ1) * Math.cos(λ1) + B * Math.cos(φ2) * Math.cos(λ2);
+    const y = A * Math.cos(φ1) * Math.sin(λ1) + B * Math.cos(φ2) * Math.sin(λ2);
+    const z = A * Math.sin(φ1) + B * Math.sin(φ2);
+    pts.push([toDeg(Math.atan2(z, Math.sqrt(x * x + y * y))), toDeg(Math.atan2(y, x))]);
+  }
+  return pts;
+}
+
 function plotRouteOnMap(hops, flow, flowId) {
   // Clear previous route for this specific flow
   if (routeLayers[flowId]) {
     routeLayers[flowId].forEach(item => map.removeLayer(item));
   }
   routeLayers[flowId] = [];
+  traceWaypoints[flowId] = [];
 
-  // Pick color based on trace index
   const traceIdx = [...activeTraceFlowIds].indexOf(flowId);
   const traceColor = TRACE_COLORS[traceIdx % TRACE_COLORS.length];
-
-  // Re-render flow arcs (so traced flows don't show duplicate arcs)
   addFlowsToMap();
 
-  // Collect waypoints: router -> each hop with geo -> destination
-  const waypoints = [
-    { lat: ROUTER_LOCATION.lat, lng: ROUTER_LOCATION.lng, label: 'Router', hop: 0, data: null }
-  ];
+  // Resolve hop coordinates from embedded location strings, not GeoIP
+  const resolvedHops = hops.map(hop => {
+    const isTimeout = hop.ip === '\u2014';
+    const coords = (!isTimeout && hop.location)
+      ? (hop.location === 'Local Network' ? { lat: ROUTER_LOCATION.lat, lng: ROUTER_LOCATION.lng } : CITY_COORDS[hop.location])
+      : null;
+    return { ...hop, coords, isTimeout };
+  });
 
-  // Assign geo to hops; if a hop has no geo, interpolate or skip
-  let lastKnownGeo = { lat: ROUTER_LOCATION.lat, lng: ROUTER_LOCATION.lng };
+  // Item 2: skip timeout/ICMP-blocked hops from map — only show responsive hops with known coords
+  const mapHops = resolvedHops.filter(h => !h.isTimeout && h.coords);
 
-  hops.forEach(hop => {
-    if (hop.geo) {
-      // Add slight jitter if same location as previous to avoid overlapping
-      let lat = hop.geo.lat;
-      let lng = hop.geo.lng;
-      const prev = waypoints[waypoints.length - 1];
-      if (Math.abs(lat - prev.lat) < 0.01 && Math.abs(lng - prev.lng) < 0.01) {
-        lat += (Math.random() - 0.5) * 0.15;
-        lng += (Math.random() - 0.5) * 0.15;
-      }
-      waypoints.push({ lat, lng, label: hop.hostname, hop: hop.hop, data: hop });
-      lastKnownGeo = { lat: hop.geo.lat, lng: hop.geo.lng };
-    } else if (hop.ip === '—') {
-      // Timeout hop - interpolate position between last known and next known
-      waypoints.push({ lat: null, lng: null, label: '* * *', hop: hop.hop, data: hop, timeout: true });
+  // Collapse consecutive hops at the same city into groups
+  const groups = [];
+  mapHops.forEach(hop => {
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && hop.location === lastGroup.location) {
+      lastGroup.hops.push(hop);
+    } else {
+      groups.push({ location: hop.location, coords: hop.coords, hops: [hop] });
     }
   });
 
-  // Resolve null positions by interpolation
-  for (let i = 0; i < waypoints.length; i++) {
-    if (waypoints[i].lat === null) {
-      const prev = waypoints[i - 1] || waypoints[0];
-      let next = null;
-      for (let j = i + 1; j < waypoints.length; j++) {
-        if (waypoints[j].lat !== null) { next = waypoints[j]; break; }
-      }
-      if (!next) next = prev;
-      waypoints[i].lat = (prev.lat + next.lat) / 2 + (Math.random() - 0.5) * 0.1;
-      waypoints[i].lng = (prev.lng + next.lng) / 2 + (Math.random() - 0.5) * 0.1;
-    }
-  }
+  // Build waypoints from collapsed groups
+  const waypoints = [
+    { lat: ROUTER_LOCATION.lat, lng: ROUTER_LOCATION.lng, label: 'Router', hopLabel: '0', data: null, hops: [] }
+  ];
 
-  // Draw route segments between consecutive waypoints
+  groups.forEach(group => {
+    const firstHop = group.hops[0].hop;
+    const lastHop = group.hops[group.hops.length - 1].hop;
+    const hopLabel = firstHop === lastHop ? `${firstHop}` : `${firstHop}-${lastHop}`;
+    waypoints.push({
+      lat: group.coords.lat,
+      lng: group.coords.lng,
+      label: group.location,
+      hopLabel,
+      data: group.hops[0],
+      hops: group.hops
+    });
+  });
+
+  // Store waypoints for this flow so fitBounds can use them (L.curve has no getLatLngs)
+  traceWaypoints[flowId] = waypoints.map(wp => [wp.lat, wp.lng]);
+
+  // Item 4: per-trace perpendicular offset so overlapping segments stay distinct
+  const OFFSET_STEP = 0.007; // degrees
+  const numTraces = activeTraceFlowIds.size;
+  const offsetMag = (traceIdx - (numTraces - 1) / 2) * OFFSET_STEP;
+
+  // Build geodesic+offset path for animation and L.curve bezier for visual rendering
+  const fullAnimPath = [];
   for (let i = 0; i < waypoints.length - 1; i++) {
     const from = waypoints[i];
     const to = waypoints[i + 1];
-    const isTimeout = to.timeout;
 
-    const segment = L.polyline(
-      [[from.lat, from.lng], [to.lat, to.lng]],
-      {
-        color: isTimeout ? '#ef4444' : traceColor,
-        weight: 2,
-        opacity: isTimeout ? 0.15 : 0.2,
-        dashArray: isTimeout ? '4, 8' : null,
-        lineCap: 'round'
-      }
-    ).addTo(map);
+    // Perpendicular unit vector for this segment (in lat/lng space)
+    const dx = to.lat - from.lat;
+    const dy = to.lng - from.lng;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const perpLat = (-dy / len) * offsetMag;
+    const perpLng = (dx / len) * offsetMag;
+
+    const fromPt = [from.lat + perpLat, from.lng + perpLng];
+    const toPt   = [to.lat   + perpLat, to.lng   + perpLng];
+
+    // Dense points (50) for comet animation interpolation
+    const animPts = geodesicPoints(fromPt[0], fromPt[1], toPt[0], toPt[1], 50);
+    if (fullAnimPath.length === 0) {
+      fullAnimPath.push(...animPts);
+    } else {
+      fullAnimPath.push(...animPts.slice(1));
+    }
+
+    // 9 geodesic anchors fed into quadratic bezier spline — hardware-smooth, no RDP
+    const anchors = geodesicPoints(fromPt[0], fromPt[1], toPt[0], toPt[1], 9);
+    const segment = L.curve(buildBezierPath(anchors), {
+      color: traceColor,
+      weight: 2,
+      opacity: 0.65,
+      lineCap: 'round',
+      interactive: false
+    }).addTo(map);
     routeLayers[flowId].push(segment);
   }
 
-  // Draw hop markers
+  // Draw hop markers at actual (non-offset) coordinates
   waypoints.forEach((wp, idx) => {
-    if (idx === 0) return; // Skip router (already has its own marker)
-
-    const isTimeout = wp.timeout;
-    const hop = wp.data;
+    if (idx === 0) return;
     const size = 8;
 
     const hopIcon = L.divIcon({
       className: 'hop-marker',
       html: `<div style="
         width: ${size}px; height: ${size}px;
-        background: ${isTimeout ? '#ef4444' : traceColor};
-        border: 2px solid ${isTimeout ? '#7f1d1d' : traceColor + '80'};
+        background: ${traceColor};
+        border: 2px solid ${traceColor}80;
         border-radius: 50%;
-        box-shadow: 0 0 6px ${isTimeout ? '#ef444480' : traceColor + '80'};
+        box-shadow: 0 0 6px ${traceColor}80;
       "></div>
       <div style="
         position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
         font-size: 9px; color: ${traceColor}; font-weight: 700;
         text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         white-space: nowrap;
-      ">${wp.hop}</div>`,
+      ">${wp.hopLabel}</div>`,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2]
     });
 
-    const popupHtml = isTimeout
-      ? `<div class="popup-title">Hop ${wp.hop} — Timeout</div><div style="color:#ef4444">100% packet loss</div>`
-      : `<div class="popup-title">Hop ${wp.hop} — ${hop.hostname}</div>
-         <div class="popup-row"><span class="popup-label">IP</span><span class="popup-value">${hop.ip}</span></div>
-         <div class="popup-row"><span class="popup-label">RTT</span><span class="popup-value" style="color:#34d399">${hop.avgRtt} ms</span></div>
-         <div class="popup-row"><span class="popup-label">Loss</span><span class="popup-value" style="color:${hop.loss > 0 ? '#ef4444' : '#34d399'}">${hop.loss}%</span></div>
-         ${hop.geo ? `<div class="popup-row"><span class="popup-label">Network</span><span class="popup-value">${hop.geo.isp || hop.geo.org || ''}</span></div>
-         <div class="popup-row"><span class="popup-label">Location</span><span class="popup-value">${hop.geo.city}, ${hop.geo.state}</span></div>` : ''}`;
+    const hopRows = wp.hops.map(h =>
+      `<div class="popup-row"><span class="popup-label">Hop ${h.hop}</span><span class="popup-value">${h.ip} (${h.avgRtt} ms${h.loss > 0 ? ', ' + h.loss + '% loss' : ''})</span></div>`
+    ).join('');
+    const firstHop = wp.hops[0];
+    const popupHtml = `
+      <div class="popup-title">${wp.label}</div>
+      <div class="popup-row"><span class="popup-label">Network</span><span class="popup-value">${firstHop.network || ''}</span></div>
+      <div style="margin-top:4px; border-top: 1px solid var(--border-color); padding-top:4px;">
+        ${hopRows}
+      </div>`;
 
     const marker = L.marker([wp.lat, wp.lng], { icon: hopIcon })
       .addTo(map)
@@ -978,54 +1241,94 @@ function plotRouteOnMap(hops, flow, flowId) {
     routeLayers[flowId].push(marker);
   });
 
-  // Start fuse animation along the route
-  const animPath = waypoints.map(wp => [wp.lat, wp.lng]);
-  startTraceAnimation(flowId, animPath, traceColor);
+  // Start fuse animation along the geodesic+offset path
+  startTraceAnimation(flowId, fullAnimPath, traceColor);
 
-  // Fit to all traced routes
-  const allWaypoints = [];
-  Object.values(routeLayers).forEach(layers => {
-    layers.forEach(item => {
-      if (item.getLatLng) allWaypoints.push(item.getLatLng());
+  // Show hop list on map (full unfiltered list for the textual panel)
+  updateMapTracePanel(hops, flow);
+
+  // Item 1: Fit bounds with extra right/bottom padding for the map-trace-panel
+  const allPoints = [];
+  // Collect waypoints from ALL active traces for bounds (L.curve has no getLatLngs)
+  Object.values(traceWaypoints).forEach(wps => wps.forEach(p => allPoints.push(p)));
+  if (allPoints.length > 0) {
+    const routeBounds = L.latLngBounds(allPoints);
+    // The panel sits in the bottom-right corner only — not the full right or bottom edge.
+    // Reserve horizontal space for it (shift route left) but use the full map height
+    // so zoom is as tight as possible.  A small symmetric vertical margin gives breathing room.
+    const PANEL_RIGHT_PAD = 356; // panel width (320) + right edge (16) + buffer (20)
+    const MARGIN = 24;
+    map.fitBounds(routeBounds, {
+      animate: true,
+      duration: 0.5,
+      paddingTopLeft:     [MARGIN, MARGIN],
+      paddingBottomRight: [PANEL_RIGHT_PAD, MARGIN]
     });
-  });
-  if (allWaypoints.length > 0) {
-    const routeBounds = L.latLngBounds(allWaypoints);
-    map.fitBounds(routeBounds.pad(0.2), { animate: true, duration: 0.5 });
   }
+}
+
+// ===== Map Trace Panel =====
+function updateMapTracePanel(hops, flow) {
+  const panel = document.getElementById('mapTracePanel');
+  const title = document.getElementById('mapTraceTitle');
+  const container = document.getElementById('mapTraceHops');
+  if (!panel || !container) return;
+
+  title.textContent = `Traceroute to ${flow.destination}`;
+  container.innerHTML = hops.map(hop => {
+    const isTimeout = hop.ip === '\u2014';
+    const lossClass = (!isTimeout && hop.loss > 0) ? ' has-loss' : '';
+    return `<div class="map-trace-hop${isTimeout ? ' timeout' : ''}${lossClass}">
+      <span class="map-trace-hop-num">${hop.hop}</span>
+      <span class="map-trace-hop-host" title="${isTimeout ? '* * *' : hop.hostname + ' (' + hop.ip + ')'}">${isTimeout ? '* * *' : hop.hostname}</span>
+      <span class="map-trace-hop-rtt">${isTimeout ? '*' : hop.avgRtt + ' ms'}</span>
+      ${!isTimeout && hop.loss > 0 ? `<span class="map-trace-hop-loss">${hop.loss}%</span>` : ''}
+    </div>`;
+  }).join('');
+  panel.classList.remove('hidden');
+}
+
+function closeMapTracePanel() {
+  const panel = document.getElementById('mapTracePanel');
+  if (panel) panel.classList.add('hidden');
 }
 
 // ===== Comet / Fuse Trace Animation =====
 const traceAnimations = {};
 
-function getPositionAtFraction(points, fraction) {
-  if (fraction <= 0) return points[0];
-  if (fraction >= 1) return points[points.length - 1];
-
-  // Compute segment lengths and total
-  const segLens = [];
-  let totalLen = 0;
+// Pre-compute cumulative arc-length table for a point array.
+// Returns { cumDist, totalLen } so per-frame lookups are O(log n) not O(n).
+function buildPathMetrics(points) {
+  const cumDist = new Float64Array(points.length); // cumDist[i] = dist from points[0] to points[i]
+  cumDist[0] = 0;
   for (let i = 1; i < points.length; i++) {
     const dx = points[i][0] - points[i - 1][0];
     const dy = points[i][1] - points[i - 1][1];
-    const len = Math.sqrt(dx * dx + dy * dy);
-    segLens.push(len);
-    totalLen += len;
+    cumDist[i] = cumDist[i - 1] + Math.sqrt(dx * dx + dy * dy);
   }
+  return { cumDist, totalLen: cumDist[points.length - 1] };
+}
 
-  let target = fraction * totalLen;
-  let cum = 0;
-  for (let i = 0; i < segLens.length; i++) {
-    if (cum + segLens[i] >= target) {
-      const t = (target - cum) / segLens[i];
-      return [
-        points[i][0] + (points[i + 1][0] - points[i][0]) * t,
-        points[i][1] + (points[i + 1][1] - points[i][1]) * t
-      ];
-    }
-    cum += segLens[i];
+// O(log n) position lookup using pre-built metrics — safe to call every animation frame.
+function getPositionAtFraction(points, fraction, metrics) {
+  if (fraction <= 0) return points[0];
+  if (fraction >= 1) return points[points.length - 1];
+
+  const { cumDist, totalLen } = metrics;
+  const target = fraction * totalLen;
+
+  // Binary search for the segment containing target distance
+  let lo = 0, hi = points.length - 2;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (cumDist[mid + 1] < target) lo = mid + 1; else hi = mid;
   }
-  return points[points.length - 1];
+  const segLen = cumDist[lo + 1] - cumDist[lo];
+  const t = segLen > 0 ? (target - cumDist[lo]) / segLen : 0;
+  return [
+    points[lo][0] + (points[lo + 1][0] - points[lo][0]) * t,
+    points[lo][1] + (points[lo + 1][1] - points[lo][1]) * t
+  ];
 }
 
 function getPathSlice(points, startFrac, endFrac) {
@@ -1100,6 +1403,9 @@ function startTraceAnimation(flowId, pathPoints, color) {
   const PAUSE_AT_END = 700;    // ms to pause at destination
   const TOTAL_CYCLE = CYCLE_DURATION + PAUSE_AT_END + FADE_DURATION;
 
+  // Pre-compute arc-length metrics once — avoids O(n) recalc on every animation frame
+  const pathMetrics = buildPathMetrics(pathPoints);
+
   let startTime = performance.now();
 
   function animate(time) {
@@ -1118,8 +1424,8 @@ function startTraceAnimation(flowId, pathPoints, color) {
     }
 
     if (progress >= 0) {
-      // Update comet head position
-      const pos = getPositionAtFraction(pathPoints, progress);
+      // O(log n) position lookup using pre-built metrics
+      const pos = getPositionAtFraction(pathPoints, progress, pathMetrics);
       cometMarker.setLatLng(pos);
       cometMarker.setOpacity(1);
     } else {
@@ -1195,14 +1501,10 @@ function renderBlockedPanel() {
 }
 
 // ===== FlowSight-style Hop Rows =====
-function rssiToPercent(rssi) {
-  return Math.max(0, Math.min(100, ((rssi + 90) / 60) * 100));
-}
-
-function rssiClass(rssi) {
-  if (rssi >= -50) return 'excellent';
-  if (rssi >= -60) return 'good';
-  if (rssi >= -70) return 'fair';
+function qoeClass(score) {
+  if (score >= 90) return 'excellent';
+  if (score >= 70) return 'good';
+  if (score >= 50) return 'fair';
   return 'poor';
 }
 
@@ -1319,8 +1621,8 @@ function renderTraceHops() {
   const flow = mockTraceroute.target;
   if (flow && flow.wifi) {
     const w = flow.wifi;
-    const sigPct = rssiToPercent(w.rssi);
-    const sigClass = rssiClass(w.rssi);
+    const sigPct = w.qoe.score;
+    const sigClass = qoeClass(w.qoe.score);
     const wifiRow = document.createElement('div');
     wifiRow.className = 'hop-row hop-row-wifi';
     wifiRow.innerHTML = `
@@ -1333,7 +1635,7 @@ function renderTraceHops() {
             <div class="wifi-signal-fill signal-${sigClass}" style="width: ${sigPct}%"></div>
           </div>
           <div class="latency-bar-label">
-            <span class="rtt-val" style="color: var(--wifi-accent)">${w.rssi} dBm</span>
+            <span class="rtt-val" style="color: var(--wifi-accent)">QoE ${w.qoe.score}/100</span>
             <span>Ch ${w.channel}</span>
           </div>
         </div>
@@ -1345,8 +1647,8 @@ function renderTraceHops() {
         </div>
         <div class="hop-info-stats">
           <div class="hop-stat">
-            <div class="hop-stat-label">RSSI</div>
-            <div class="hop-stat-value" style="color: var(--wifi-accent)">${w.rssi}</div>
+            <div class="hop-stat-label">QoE</div>
+            <div class="hop-stat-value" style="color: var(--wifi-accent)">${w.qoe.score}</div>
           </div>
           <div class="hop-stat">
             <div class="hop-stat-label">MCS</div>
@@ -1582,6 +1884,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Reconcile flow destination location using a three-tier hierarchy:
+  //   Tier 1: hop whose IP exactly matches destIp  — ground truth, no comparison needed
+  //   Tier 2: last responsive hop city vs GeoIP city — heuristic for anycast/CDN endpoints
+  //   Tier 3: keep GeoIP as-is
+  // Parses city/state/country from traceroute location strings like "Dallas, TX, US"
+  function applyTracertLocation(flow, locationStr, coords, geoipCity) {
+    const parts = locationStr.split(',').map(p => p.trim());
+    flow.location = {
+      ...flow.location,
+      lat: coords.lat,
+      lng: coords.lng,
+      city: parts[0] || flow.location.city,
+      state: parts[1] || '',
+      country: parts[2] || flow.location.country,
+      geoipConflict: true,
+      geoipCity
+    };
+  }
+
+  mockFlows.forEach(flow => {
+    const traceHops = flowTraceroutes[flow.id];
+    if (!traceHops || !flow.location) return;
+
+    const geoCity = (flow.location.city || '').trim();
+
+    // Tier 1: exact destination IP match in traceroute — unambiguous ground truth
+    const exactHop = traceHops.find(h =>
+      h.ip === flow.destIp && h.location && h.location !== 'Local Network' && h.location !== '\u2014'
+    );
+    if (exactHop) {
+      const coords = CITY_COORDS[exactHop.location];
+      if (coords) {
+        const traceCity = exactHop.location.split(',')[0].trim();
+        if (traceCity.toLowerCase() !== geoCity.toLowerCase()) {
+          console.info(`[FlowSight] Exact IP match flow ${flow.id}: tracert="${traceCity}" overrides GeoIP="${geoCity}"`);
+          applyTracertLocation(flow, exactHop.location, coords, geoCity);
+        }
+        return; // exact match found — skip tier 2 regardless
+      }
+    }
+
+    // Tier 2: last responsive hop city differs from GeoIP city — prefer traceroute
+    const lastHop = [...traceHops].reverse().find(h =>
+      h.ip !== '\u2014' && h.location && h.location !== 'Local Network' && h.location !== '\u2014'
+    );
+    if (!lastHop) return;
+
+    const traceCity = lastHop.location.split(',')[0].trim();
+    if (traceCity && geoCity && traceCity.toLowerCase() !== geoCity.toLowerCase()) {
+      const traceCoords = CITY_COORDS[lastHop.location];
+      if (traceCoords) {
+        console.info(`[FlowSight] GeoIP conflict flow ${flow.id}: GeoIP="${geoCity}" vs tracert last-hop="${traceCity}" — using tracert`);
+        applyTracertLocation(flow, lastHop.location, traceCoords, geoCity);
+      }
+    }
+    // Tier 3: no conflict or no CITY_COORDS entry — keep GeoIP unchanged
+  });
+
   // Generate initial sparkline rate history
   mockFlows.forEach(flow => {
     flow.rateHistory = generateRateHistory(flow.rx_bps);
@@ -1589,12 +1949,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderFlowList();
   initMap();
-
-  // Auto-trace two flows to demonstrate multi-trace with different colors
-  setTimeout(async () => {
-    await traceRoute(1);   // Google - amber trace
-    await traceRoute(10);  // YouTube - pink trace
-  }, 1500);
 
   // Live sparkline updates every 5 seconds
   setInterval(() => {

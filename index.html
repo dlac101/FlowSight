@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlowSight - Network Flow Mapper</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <!-- Sidebar -->
@@ -111,6 +111,14 @@
         <!-- Map Container -->
         <div class="map-container">
           <div id="map"></div>
+          <!-- Trace Hops Overlay (populated by JS when a trace is active) -->
+          <div class="map-trace-panel hidden" id="mapTracePanel">
+            <div class="map-trace-header">
+              <span class="map-trace-title" id="mapTraceTitle">Traceroute</span>
+              <button class="map-trace-close" onclick="closeMapTracePanel()">&times;</button>
+            </div>
+            <div class="map-trace-hops" id="mapTraceHops"></div>
+          </div>
           <!-- Map Legend -->
           <div class="map-legend">
             <div class="legend-item"><span class="legend-line legend-web"></span> Web</div>
@@ -185,6 +193,7 @@
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="leaflet-curve.js"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>
