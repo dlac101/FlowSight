@@ -68,56 +68,77 @@
 }
 
 [data-theme="light"] {
-  --bg-primary: #f3f4f6;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f9fafb;
-  --bg-input: #f3f4f6;
-  --bg-sidebar: #1e293b;
-  --bg-topbar: #ffffff;
+  /* Warm Slate: gray canvas + white cards for depth */
+  --bg-primary:    #f1f3f6;
+  --bg-secondary:  #f6f7f9;
+  --bg-card:       #ffffff;
+  --bg-card-hover: #f7f8fa;
+  --bg-input:      #edf0f4;
+  --bg-sidebar:    #1e293b;  /* sidebar stays dark */
+  --bg-topbar:     #f8f9fb;
+  --bg-tooltip:    #1e2740;
 
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
-  --text-heading: #111827;
+  /* Text: dark slate hierarchy */
+  --text-primary:  #1a2332;
+  --text-secondary: #475569;
+  --text-muted:    #8494a7;
+  --text-heading:  #0f1729;
 
-  --border-color: #e5e7eb;
-  --border-light: #d1d5db;
+  /* Borders: visible but not heavy */
+  --border-color:  #d8dce3;
+  --border-light:  #e8ebf0;
 
   --badge-udp-bg: #7c3aed15;
   --badge-tcp-bg: #14b8a615;
 
   --map-tile-filter: none;
 
-  --chart-grid: #e5e7eb80;
+  --chart-grid: #d8dce380;
 
-  --shadow: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  /* Desaturated accents (~15% less vivid than dark theme) */
+  --accent-cyan:    #0ea5c9;
+  --accent-green:   #10b981;
+  --accent-orange:  #d97706;
+  --accent-red:     #dc2626;
+  --accent-purple:  #7c3aed;
+  --accent-blue:    #2563eb;
+  --accent-teal:    #0d9488;
+  --accent-pink:    #c026d3;
+
+  /* Stronger shadows for card elevation on gray canvas */
+  --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.04);
 
   --flow-selected: #dbeafe;
-  --flow-hover: #f0f4ff;
+  --flow-hover: #edf0f4;
 
-  --scrollbar-track: #f3f4f6;
-  --scrollbar-thumb: #d1d5db;
+  --scrollbar-track: #f1f3f6;
+  --scrollbar-thumb: #c8cdd5;
 
   --threat-red: #dc2626;
   --threat-glow: rgba(220, 38, 38, 0.3);
   --wifi-accent: #7c3aed;
-  --dscp-ef: #0891b2;
-  --dscp-af: #059669;
+  --dscp-ef: #0ea5c9;
+  --dscp-af: #10b981;
   --dscp-cs: #d97706;
-  --dscp-be: #6b7280;
-  --jitter-low: #059669;
+  --dscp-be: #8494a7;
+  --jitter-low: #10b981;
   --jitter-med: #d97706;
   --jitter-high: #dc2626;
-  --sparkline-stroke: #0891b2;
-  --sparkline-fill: rgba(8, 145, 178, 0.12);
+  --sparkline-stroke: #0ea5c9;
+  --sparkline-fill: rgba(14, 165, 201, 0.12);
   --as-border-1: #2563eb;
   --as-border-2: #7c3aed;
   --as-border-3: #d97706;
   --history-delta-up: #dc2626;
-  --history-delta-down: #059669;
+  --history-delta-down: #10b981;
   --path-changed-bg: rgba(217, 119, 6, 0.08);
+}
+
+/* Warm Slate: component-specific light overrides */
+[data-theme="light"] .top-bar {
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
 /* ===== Reset & Base ===== */
